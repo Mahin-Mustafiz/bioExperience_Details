@@ -1,0 +1,410 @@
+<html lang="en">
+<head><title>Guess Fruit Scene</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+body{
+background-image: linear-gradient(to bottom right, #392e4a, #963694, #9b59b6);
+}
+.intro, .new_01{
+width:65%;
+height:60%;
+background-color:black;
+margin: 9.5% auto 0 auto;
+border-radius:15px;
+overflow:hidden;
+}
+.new_01{
+margin-top:7.5%;
+display:none;
+}
+.new_01 > input[type=text]{
+margin: 10% 0 0 5%;
+color:white;
+outline:none;
+border-radius:15px;
+letter-spacing:1.5px;
+font-family:courier new;
+text-align:center;
+}
+#play, #score{
+width:80%;
+height:15%;
+background-image:linear-gradient(to bottom right, #f9690e, #f39c12, #f9b42d);
+color:white;
+margin: 0 10% 0 10%;
+
+font-family:"trebuchet MS", Verdana, sans-serif;
+font-weight:bold;
+font-size:26px;
+letter-spacing:2px;
+overflow-y:hidden;
+cursor:pointer;
+border:1px solid black;
+border-radius:15px;
+}
+#play:hover, #score:hover{
+background-image: none;
+background-color: #f62459;
+letter-spacing:3px;
+font-size:30px;
+}
+#play:active, #score:active{
+transform:scale(0.95);
+}
+.view{
+top:0;
+left:0;
+position:absolute;
+width:100%;
+height:100%;
+background-color: rgba(110, 48, 75, 0.9);
+display:none;
+}
+.imgBody{
+width:60%;
+height:70%;
+background-image:none;
+background-size:100% 100%;
+background-repeat:no-repeat;
+margin: 8% auto 0 auto;
+border-radius:15px;
+overflow:hidden;
+}
+#winView{
+top:0;
+left:0;
+position:absolute;
+width:100%;
+height:100%;
+background-image:none;
+background-repeat:no-repeat;
+background-size:100% 100%;
+display:none;
+overflow:hidden;
+}
+#viewScore, #wrong{
+top:0;
+left:0;
+position:absolute;
+width:100%;
+height:100%;
+background-color:rgba(110, 48, 75, 0.9);
+display:none;
+}
+#viewScore > #pResult{
+border-collapse:collapse;
+margin: 9.5% auto 0 auto;
+overflow:hidden;
+}
+#viewScore > #pResult tr th{
+border: 3px solid white;
+font-family:bahnschrift;
+font-size:30px;
+letter-spacing:2px;
+color:white;
+}
+#viewScore > #pResult tr td{
+font-family:century schoolbook;
+font-size:30px;
+color:white;
+letter-spacing:1.5px;
+text-align:center;
+}
+#pDetails{
+margin-left: 35%;
+font-family:lucida calligraphy;
+font-size:20px;
+letter-spacing:1.5px;
+color:white;
+}
+#pDetails > a{
+text-decoration:none;
+color:white;
+}
+#pDetails > a:hover{
+color:#36d7b7;
+}
+#pDetails > a:active{
+color:#ff4c30;
+}
+
+#rules{
+top:0;
+left:0;
+position:absolute;
+width:100%;
+height:100%;
+background-color:rgba(74, 21, 173, 0.85);
+transition:0.85s ease-in;
+}
+#rules > label{
+font-family:century schoolbook;
+font-size:20px;
+color:white;
+letter-spacing:1.5px;
+margin-left:10%;
+}
+
+#myInfo{
+top:0;
+left:0;
+position:absolute;
+width:100%;
+height:100%;
+background-color:rgba(90, 34, 139, 0.65);
+display:none;
+overflow:hidden;
+transition:0.85s ease-out;
+}
+#myInfo > a{
+margin-left:20%;
+font-family:cambria;
+font-size:30px;
+color:white;
+}
+#myInfo > a:hover{
+color:#36d7b7;
+}
+#myInfo > a:active{
+color:#ff4c30;
+}
+#myInfo > span:hover, #viewScore > span:hover{
+background-color:red;
+}
+</style>
+<script type="text/javascript">
+
+function getSound(){
+const sound=new Audio("./interface-124464.mp3");
+sound.play();
+setTimeout(gotoPage_01, 2000);
+}
+function gotoPage_01(){
+gameSet=document.getElementById('newFrame');
+prevSet=document.getElementById('start');
+points=document.getElementById('reward');
+user=document.getElementById('pDetails');
+
+prevSet.style.display="none";
+user.style.display="none";
+points.style.display="block";
+gameSet.style.display="block";
+
+setTimeout(function(){ document.getElementById('rules').style.display="block"; }, 1000);
+}
+
+function getMusic(){
+const sound=new Audio("./interface-124464.mp3");
+sound.play();
+setTimeout(gotoPage_02, 2000);
+}
+function gotoPage_02(){
+getV=new URLSearchParams(window.location.search);
+
+if(getV.has('got')==true){
+items=getV.get('got');
+ptnTime=items.split(',');
+
+document.getElementById('getPnts').innerText=""+ptnTime[0]+"/25";
+document.getElementById('time').innerText=""+ptnTime[1];
+}
+document.getElementById('viewScore').style.display="block";
+}
+
+//https://www.fesliyanstudios.com/play-mp3/387
+//window.location.href="https://pixabay.com/sound-effects/interface-124464/";
+
+function offScoreboard(){
+document.getElementById('viewScore').style.display="none";
+}
+</script>
+
+<script>
+V=0;
+trk=0;
+oneTime=0;
+let idx=-1;
+let isFound=[0,0,0,0,0,0,0,0];
+
+function seeResult(){
+var sense=document.getElementById("getWord");
+setPoints=document.getElementById('reward');
+size=sense.value.length;
+
+if((size==5||size==6||size==9)&&trk==0){
+ if(sense.value=="mango"){
+ document.getElementById('image').style.backgroundImage="url('https://images.pexels.com/photos/6166835/pexels-photo-6166835.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')";
+ document.getElementById('imgView').style.display="block";
+ idx=0;
+ trk=1;
+ }else if(sense.value=="orange"){
+ document.getElementById('image').style.backgroundImage="url('https://images.pexels.com/photos/12883545/pexels-photo-12883545.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')";
+ document.getElementById('imgView').style.display="block";
+ idx=1;
+ trk=1;
+ }else if(sense.value=="pineapple"){
+ document.getElementById('image').style.backgroundImage="url('https://images.pexels.com/photos/139229/pexels-photo-139229.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')";
+ document.getElementById('imgView').style.display="block";
+ idx=2;
+ trk=1;
+ }else if(sense.value=="guava"){
+ document.getElementById('image').style.backgroundImage="url('https://static8.depositphotos.com/1295023/923/i/380/depositphotos_9234448-stock-photo-guava-full-frame.jpg')";
+ document.getElementById('imgView').style.display="block";
+ idx=3;
+ trk=1;
+ }else if(sense.value=="grapes"){
+ document.getElementById('image').style.backgroundImage="url('https://img.freepik.com/free-photo/mountain-green-grapes_1122-1253.jpg?w=740&t=st=1702144220~exp=1702144820~hmac=f08712240e4451a7624ff95e415c4b58aa77355ad3a16c11c356bda327bbc69e')";
+ document.getElementById('imgView').style.display="block";
+ idx=4;
+ trk=1;
+ }else if(sense.value=="apple"){
+ document.getElementById('image').style.backgroundImage="url('https://images.freeimages.com/images/large-previews/8d2/apple-1560425.jpg?fmt=webp&w=500')";
+ document.getElementById('imgView').style.display="block";
+ idx=5;
+ trk=1;
+ }else if(sense.value=="banana"){
+ document.getElementById('image').style.backgroundImage="url('https://foodandnutrition.org/wp-content/uploads/SavorBananas-780x520.jpg')";
+ document.getElementById('imgView').style.display="block";
+ idx=6;
+ trk=1;
+ }else if(sense.value=="jackfruit"){
+ document.getElementById('image').style.backgroundImage="url('https://images.pexels.com/photos/5310413/pexels-photo-5310413.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')";
+ document.getElementById('imgView').style.display="block";
+ idx=7;
+ trk=1;
+ }else{
+ trk=0;
+ }
+ 
+ if(idx!=-1 && isFound[idx]!=1){
+  isFound[idx]=1;
+  V+=5;
+ }
+ if(trk==1){
+ document.getElementById('right').className="fa fa-check-square";
+ sense.value='';
+ }
+}else if(size==0||size==1){
+trk=0;
+oneTime=0;
+}else if(size>9 && oneTime==0){
+document.getElementById('wrong').style.display="block";
+oneTime=1;
+}
+
+setPoints.innerText="Score: "+V+"/25";
+}
+
+function offImg(){
+document.getElementById('imgView').style.display="none";
+if(V==25){
+setTimeout(CelebrateView, 500);
+}
+}
+
+function CelebrateView(){
+var images = [
+"https://media4.giphy.com/media/KVZWZQoS0yqfIiTAKq/giphy.gif?cid=ecf05e47500j5f4bq0z3exqae0psy31nhwc57bjfzdz2yku1&ep=v1_gifs_search&rid=giphy.gif&ct=g",
+"https://media3.giphy.com/media/RlwF2vFb4y7bDnWvcO/200w.webp?cid=ecf05e47w8mckim2nqu4zf4fjixt0gn7yomx2s2q25v00bcw&ep=v1_gifs_related&rid=200w.webp&ct=g",
+"https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZDRvODFwNmxzZ3FmaXV2YnYwN2IwOTZ5azRyemY0bHdrdWU5MG9oNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cYf4OoUU4YZ0wIVWk3/giphy.gif"
+];
+Htext=document.querySelector('#winview > h1');
+close=document.querySelector('#winview > span');
+
+document.getElementById('winView').style.backgroundImage="url('"+images[Math.floor(Math.random()*3)]+"')";
+Htext.style.display="block";
+close.style.display="block";
+document.getElementById('winView').style.display="block";
+}
+function CelebrateOff(){
+document.getElementById('winView').style.display="none";
+timeSpan=new Date();
+
+if(timeSpan.getHours() > 12){
+if(timeSpan.getMinutes() < 10){
+time1=""+(timeSpan.getHours()-12)+":0"+timeSpan.getMinutes()+" PM";
+}else{
+time1=""+(timeSpan.getHours()-12)+":"+timeSpan.getMinutes()+" PM";
+}
+window.location.href="Fruit_Guessing_Game.html?got="+V+","+time1;
+}else{
+if(timeSpan.getMinutes() < 10){
+time2=""+timeSpan.getHours()+":0"+timeSpan.getMinutes()+" AM";
+}else{
+time2=""+timeSpan.getHours()+":"+timeSpan.getMinutes()+" AM";
+}
+window.location.href="Fruit_Guessing_Game.html?got="+V+","+time2;
+}
+}
+function closeWrong(){
+document.getElementById('wrong').style.display="none";
+}
+function closeRules(){
+document.getElementById('rules').style.display="none";
+}
+function MyInfo(){
+document.getElementById('myInfo').style.display="block";
+}
+function MyInfoClose(){
+document.getElementById('myInfo').style.display="none";
+}
+</script>
+</head>
+
+<body>
+<h1 id="reward" align="right" style="font-family:verdana;color:white;display:none;">Score: 0/25</h1>
+
+<div id="start" class="intro">
+<h1 align="center" style="font-family:lucida calligraphy;color:white;font-size:70px;letter-spacing:1.5px;">Fruit Game</h1>
+<button id="play" style="margin-bottom:2%;" onclick="getSound();">Play</button>
+<button id="score" onclick="getMusic();">Present Score</button>
+</div>
+<p id="pDetails">Created By <a href="javascript:void(0)" onclick="MyInfo();">Mahin Mustafiz Sami</a></p>
+<div id="myInfo">
+<span onclick="MyInfoClose();" style="color:white;font-size:40px;font-family:verdana;float:right;margin-right:2%;cursor:pointer;">x</span>
+<br/><br/><br/><br/>
+<a href="https://www.facebook.com/mahinmustafiz.sami/" style="text-decoration:none;">Click Here for Profile Details...</a><br/><br/>
+<a onclick="alert('mahinmustafizsami@gmail.com');" href="javascript:void(0)" style="text-decoration:none;">Click Here for Gmail Address...</a><br/><br/>
+<a href="https://www.rokomari.com/book/215124/basic-way-of-learning-c;jsessionid=3EE786C504112578A261FA47F7F61F34?ref=sp_in_0_p_215124" style="text-decoration:none;">Click Here for Programming Book Access...</a>
+</div>
+
+<div id="newFrame" class="new_01">
+<h1 align="center" style="color:white;font-family:century schoolbook;letter-spacing:1.5px;">Please! Write Your Guessing Fruit Name....</h1>
+<input type="text" id="getWord" onkeyup="seeResult();" style="width:90%;height:30%;background-color:#6e304b;font-size:100px;"/>
+</div>
+
+<div id="imgView" class="view">
+<span onclick="offImg();" style="color:white;font-size:40px;font-family:verdana;float:right;margin-right:2%;cursor:pointer;">x</span>
+<div id="image" class="imgBody" style="margin-bottom:0.5%;"></div>
+<span id="right" style="font-size:80px;margin-left:48%;color:#b2de27;"></span>
+</div>
+
+<div id="viewScore">
+<span onclick="offScoreboard();" style="color:white;font-size:40px;font-family:verdana;float:right;margin-right:2%;cursor:pointer;">x</span>
+<table id="pResult" width="900" height="200">
+<tr><th style="border-top-left-radius:5%;">Score</th><th style="border-top-right-radius:5%;">Time</th></tr>
+<tr><td id="getPnts">0/25</td><td id="time">0:0</td></tr>
+</table>
+</div>
+
+<div id="winView">
+<span onclick="CelebrateOff();" style="color:white;font-size:40px;font-family:verdana;float:right;margin-right:2%;cursor:pointer;display:none;">x</span>
+<h1 align="center" style="margin-top:18%;font-family:century schoolbook;font-size:110px;letter-spacing:3px;color:white;display:none;">Congratualations</h1>
+</div>
+
+<div id="wrong">
+<span onclick="closeWrong();" style="color:white;font-size:40px;font-family:verdana;float:right;margin-right:2%;cursor:pointer;">x</span>
+<p align="center" style="font-size:100px;font-family:comic sans ms;color:white;margin-top:20%;">Enter Correct Name....</p>
+</div>
+
+<div id="rules" onclick="closeRules();" style="display:none;">
+<h1 align="center" style="font-family:bahnschrift;letter-spacing:1.5px;color:white;">How to Play(Procedures)</h1><br/>
+<label><b>1.</b> Write Any Fruit Name you Wish(in small letters).</label><br/>
+<label><b>2.</b> Keep Internet 'ON' For Image Load.</label><br/>
+<label><b>3.</b> For Every Name, Fruit Image will be shown.</label><br/>
+<label><b>4.</b> Writing Same Fruit Name Everytime will not Increase Score.</label><br/>
+<label><b>5.</b> Your Total Score is 25. For Each Right Answer, 5 points will be added.</label>
+</div>
+</body>
+</html>
